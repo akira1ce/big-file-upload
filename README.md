@@ -1,36 +1,60 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Next.js 大文件上传演示
 
-## Getting Started
+一个使用分块上传、断点续传和文件去重功能的 Next.js 大文件上传演示项目。
 
-First, run the development server:
+## 功能特点
+
+- 基于分块的文件上传
+- 可断点续传（暂停/继续）
+- 客户端文件哈希计算用于去重
+- 文件状态跟踪
+- 上传进度可视化
+- 并发上传控制
+
+## 技术实现
+
+### 核心解决方案
+
+1. **分块上传**：文件被分割成 2MB 的块并单独上传
+2. **文件哈希计算**：
+   - 使用 SparkMD5 为每个文件生成唯一哈希值
+   - 在较小的 256KB 块中计算哈希，使用 requestIdleCallback 确保 UI 响应性
+3. **文件去重**：
+   - 上传前服务器基于哈希值检查文件是否已存在
+   - 检测到重复文件时实现"秒传"
+4. **断点续传能力**：
+   - 在服务器上跟踪已上传的分块
+   - 中断后可从最后一个成功的分块继续上传
+5. **并发控制**：
+   - 限制同时上传的文件数量为 3 个
+   - 使用 AbortController 实现取消功能
+
+## 开始使用
+
+### 前提条件
+
+- Node.js 16+ 和 npm/yarn
+
+### 安装
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+# 安装依赖
+npm install
+# 或
+yarn install
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### 运行开发服务器
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```bash
+# 启动开发服务器
+npm run dev
+# 或
+yarn dev
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+在浏览器中打开 [http://localhost:3000](http://localhost:3000) 查看应用。
 
-## Learn More
+## 文件存储
 
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+上传的文件存储在项目根目录的 `/file/complete` 目录下。
